@@ -1,0 +1,58 @@
+@startuml
+
+' Diagrama 2: Criação de Reserva (Coordenado pelo Serviço de Reservas)
+autonumber
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 10
+skinparam boxPadding 10
+
+actor "Cliente (Dona Maria)" as Cliente
+participant "API Gateway" as Gateway
+participant "Serviço de Reservas" as SvcReservas
+participant "Serviço de Usuários" as SvcUsuarios
+participant "Serviço de Espaços" as SvcEspacos
+participant "Serviço de Pagamentos" as SvcPagamentos
+database "DB (Reservas)" as DBReservas
+
+Cliente -> Gateway : POST /reservas\n(IdCliente, IdEspaco, Data)
+activate Gateway
+Gateway -> SvcReservas : POST /reservas (dados)
+activate SvcReservas
+
+' 1. Verificar Cliente
+SvcReservas -> SvcUsuarios : GET /usuarios/{id_cliente}
+activate SvcUsuarios
+SvcUsuarios --> SvcReservas : 200 OK (Dados do Cliente)
+deactivate SvcUsuarios
+
+' 2. Verificar Espaço e buscar Preço
+SvcReservas -> SvcEspacos : GET /espacos/{id_espaco}
+activate SvcEspacos
+SvcEspacos --> SvcReservas : 200 OK (Dados do Espaço, Preço)
+deactivate SvcEspacos
+
+' 3. Verificar Double Booking e Criar Reserva PENDENTE
+note right of SvcReservas: Ponto crítico: Transação ou Lock\n para evitar double-booking
+SvcReservas -> DBReservas : Verifica conflito (IdEspaco, Data)
+activate DBReservas
+DBReservas --> SvcReservas : (Sem conflito)
+deactivate DBReservas
+
+SvcReservas -> DBReservas : Cria reserva com status "PENDENTE"
+activate DBReservas
+DBReservas --> SvcReservas : (Reserva criada, retorna IdReserva)
+deactivate DBReservas
+
+' 4. Criar o Pagamento
+SvcReservas -> SvcPagamentos : POST /pagamentos (IdReserva, Valor)
+activate SvcPagamentos
+SvcPagamentos --> SvcReservas : 201 Created (Detalhes do Pagamento)
+deactivate SvcPagamentos
+
+' 5. Responder ao Cliente
+SvcReservas --> Gateway : 201 Created (Reserva PENDENTE + Detalhes Pagamento)
+deactivate SvcReservas
+Gateway --> Cliente : 201 Created
+deactivate Gateway
+
+@enduml

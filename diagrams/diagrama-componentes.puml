@@ -1,0 +1,78 @@
+@startuml
+
+' Diagrama de Componentes - "Seu Cantinho" (Microsserviços)
+' Define uma aparência mais "moderna" para os componentes
+skinparam componentStyle uml2
+skinparam defaultFontName "Segoe UI, Arial"
+skinparam rectangle {
+    roundCorner 20
+}
+skinparam note {
+    backgroundColor #LightYellow
+    borderColor #Gray
+}
+
+' O sistema todo é executado via Docker Compose
+package "Sistema 'Seu Cantinho' (Executado via 'docker compose up' [cite: 22, 28])" {
+
+    ' 1. O Cliente (Frontend)
+    [Frontend (Web App)] as AppCliente
+    note right of AppCliente: Interface simples para\nDona Maria [cite: 12]
+
+    ' 2. O Ponto de Entrada
+    [API Gateway] as Gateway
+    note bottom of Gateway: Roteia chamadas externas\npara os serviços corretos
+    
+    ' 3. Os Microsserviços
+    package "Microsserviços (Backend)" {
+        [Serviço de Espaços] as SvcEspacos
+        [Serviço de Reservas] as SvcReservas
+        [Serviço de Pagamentos] as SvcPagamentos
+        [Serviço de Usuários] as SvcUsuarios
+    }
+
+    ' 4. Os Bancos de Dados (Isolados)
+    database "DB Espaços" as DBEspacos
+    database "DB Reservas" as DBReservas
+    database "DB Pagamentos" as DBPagamentos
+    database "DB Usuários" as DBUsuarios
+
+    ' Interfaces (as "bolas" ou "lollipops" representam as APIs REST)
+    ' "()" significa "Provided Interface"
+    interface "API REST [cite: 21]" as I_REST
+    Gateway -(I_REST
+    SvcEspacos -(I_REST
+    SvcReservas -(I_REST
+    SvcPagamentos -(I_REST
+    SvcUsuarios -(I_REST
+}
+
+' ---------- RELACIONAMENTOS ----------
+
+' Cliente fala APENAS com o Gateway
+AppCliente ..> Gateway : (HTTPS)
+
+' Gateway fala com todos os serviços
+' "..>" (seta tracejada) significa "Required Interface" ou "Dependency"
+Gateway ..> SvcEspacos
+Gateway ..> SvcReservas
+Gateway ..> SvcPagamentos
+Gateway ..> SvcUsuarios
+
+' Comunicação Inter-Serviços (baseado nos Diagramas de Sequência)
+' O Serviço de Reservas precisa de dados de outros serviços
+SvcReservas ..> SvcUsuarios : (Verifica Cliente)
+SvcReservas ..> SvcEspacos : (Busca dados/preço do Espaço)
+SvcReservas ..> SvcPagamentos : (Cria Pagamento)
+
+' O Serviço de Pagamentos notifica o de Reservas
+SvcPagamentos ..> SvcReservas : (Confirma Reserva)
+
+' Cada serviço é dono do seu banco de dados
+' (Linha sólida = associação direta/composição)
+SvcEspacos -- DBEspacos
+SvcReservas -- DBReservas
+SvcPagamentos -- DBPagamentos
+SvcUsuarios -- DBUsuarios
+
+@enduml

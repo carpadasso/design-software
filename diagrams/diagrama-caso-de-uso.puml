@@ -1,0 +1,35 @@
+@startuml
+
+left to right direction
+
+actor :Lojista: as AC1
+actor :Usuário: as AC2
+actor :Sistema Pagamento: as AC3
+
+rectangle Reservas {
+  usecase "Cadastrar Espaços" as UC11
+  usecase "Verificar Espaços Cadastrados" as UC12
+  usecase "Modificar Detalhes de Espaços" as UC13
+  usecase "Remover Espaço Cadastrado" as UC14
+  
+  usecase "Criar Reserva" as UC21
+  usecase "Verificar Reserva" as UC22
+  usecase "Alterar Reserva" as UC23
+  usecase "Cancelar Reserva" as UC24
+  usecase "Pagar Reserva" as UC25
+}
+
+AC1 --> UC11
+AC1 --> UC12
+AC1 --> UC13
+AC1 --> UC14
+
+AC2 --> UC21
+AC2 --> UC22
+AC2 --> UC23
+AC2 --> UC24
+AC2 --> UC25
+
+UC25 <-- AC3
+
+@enduml

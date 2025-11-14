@@ -1,0 +1,28 @@
+@startuml
+' Diagrama 1: Cadastro de Novo Espaço
+autonumber
+skinparam sequenceArrowThickness 2
+skinparam participantPadding 10
+skinparam boxPadding 10
+
+actor "Cliente (Dona Maria)" as Cliente
+participant "API Gateway" as Gateway
+participant "Serviço de Espaços" as SvcEspacos
+database "DB (Espaços)" as DBEspacos
+
+Cliente -> Gateway : POST /espacos\n(fotos, capacidade, preço)
+activate Gateway
+Gateway -> SvcEspacos : POST /espacos (dados)
+activate SvcEspacos
+
+note right of SvcEspacos: Valida os dados do novo espaço
+SvcEspacos -> DBEspacos : Salva novo espaço
+activate DBEspacos
+DBEspacos --> SvcEspacos : (Sucesso, retorna ID)
+deactivate DBEspacos
+
+SvcEspacos --> Gateway : 201 Created (novo espaço)
+deactivate SvcEspacos
+Gateway --> Cliente : 201 Created
+deactivate Gateway
+@enduml

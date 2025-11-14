@@ -1,0 +1,114 @@
+@startuml
+' Define a skin para um visual mais limpo
+
+
+' --- Classes de Entidade (Os Dados) ---
+' Foco em "Information Expert": Elas sabem seus próprios dados.
+class Cliente {
+  - id_usuario: int
+  - nome_usuario: string
+  - senha: string
+  - cpf: int
+  - email: string
+  - endereco: string
+  - saldo: int
+  --
+  + atualizarNome(...)
+  + atualizarEmail(...)
+  + atualizarSaldo(...)
+}
+
+class Lojista {
+  - id_lojista: int
+  - nome_lojista: string
+  - senha: string
+  - cnpj: int
+  - email: string
+  - endereco: string
+  --
+  + atualizarNome(...)
+  + atualizarEmail(...)
+}
+
+class Espaco {
+  - id_espaco: int
+  - endereco: string
+  - capacidade: int
+  - preco_diaria: double
+  - disponivel: boolean
+  --
+  + verificarDisponibilidade(data): boolean
+}
+
+class Reserva {
+  - id_reserva: int
+  - data_inicio: Date
+  - data_fim: Date
+  - valor_total: double
+  - status_reserva: string
+  --
+  + calcularValorTotal(): double
+  + cancelar()
+  + verificarStatusPagamento(): string
+}
+
+class Pagamento {
+  - id_pagamento: int
+  - valor_pago: double
+  - data_pagamento: Date
+  - status_pagamento: string
+  --
+  + confirmarPagamento()
+}
+
+' --- Classes de Controle (A Lógica) ---
+' Padrão GRASP "Controller": Mediadores entre os Atores e os Dados.
+class InterfaceAplicativo <<interface>> {
+  + leEntradaUsuario(...)
+  + leEntradaLojista(...)
+}
+
+class ControladorGeral {
+
+}
+
+class ServiçoEspaco {
+  + cadastrarEspaco(...): Espaco
+  + modificarDetalhesEspaco(...): Espaco
+  + removerEspaco(id_espaco): boolean
+  + verificarEspacosCadastrados(id_lojista): list<Espaco>
+}
+
+class ServiçoReserva {
+  + criarReserva(...): Reserva
+  + verificarReserva(id_reserva): Reserva
+  + alterarReserva(...): Reserva
+  + cancelarReserva(id_reserva): boolean
+}
+
+class ServiçoPagamento {
+  + realizarPagamento(...): Pagamento
+  + consultarStatusPagamento(id_reserva): string
+}
+
+class ServiçoCadastro {
+  + cadastrarUsuario(...): Usuario
+  + cadastrarLojista(...): Lojista
+}
+
+' --- Relacionamentos (GRASP em ação) ---
+Cliente -down-> InterfaceAplicativo
+Lojista -> InterfaceAplicativo
+
+InterfaceAplicativo -right-> ControladorGeral
+ControladorGeral -up-> ServiçoEspaco
+ControladorGeral -right-> ServiçoReserva
+ControladorGeral -down-> ServiçoPagamento
+ControladorGeral --> ServiçoCadastro
+
+ServiçoEspaco -> Espaco
+ServiçoReserva -> Reserva
+ServiçoPagamento -> Pagamento
+ServiçoCadastro -left-> Cadastro
+
+@enduml
