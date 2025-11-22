@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Alterado de 'svc-usuarios' para 'svc-cadastro'
   svc-cadastro:
