@@ -6,7 +6,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = 3001; // Porta esperada pelo serviço de Reservas
+const PORT = 3001; // Porta do Serviço de Cadastro
 
 app.use(express.json());
 
@@ -40,30 +40,30 @@ function salvarBanco(dados) {
 
 // --- Rotas ---
 
-// GET /usuarios - Listar todos
-app.get('/usuarios', (req, res) => {
-  const usuarios = lerBanco();
+// GET /cadastros - Listar todos
+app.get('/cadastros', (req, res) => {
+  const cadastros = lerBanco();
   // Boa prática: remover a senha antes de retornar a lista
-  const usuariosSafe = usuarios.map(({ senha, ...resto }) => resto);
-  res.status(200).json(usuariosSafe);
+  const cadastrosSafe = cadastros.map(({ senha, ...resto }) => resto);
+  res.status(200).json(cadastrosSafe);
 });
 
-// GET /usuarios/:id - Buscar um (Usado pela Reserva para validar cliente)
-app.get('/usuarios/:id', (req, res) => {
-  const usuarios = lerBanco();
-  const usuario = usuarios.find(u => u.id === req.params.id);
+// GET /cadastros/:id - Buscar um (Usado pela Reserva para validar cliente)
+app.get('/cadastros/:id', (req, res) => {
+  const cadastros = lerBanco();
+  const cadastro = cadastros.find(c => c.id === req.params.id);
 
-  if (!usuario) {
-    return res.status(404).json({ error: 'Usuário não encontrado.' });
+  if (!cadastro) {
+    return res.status(404).json({ error: 'Cadastro não encontrado.' });
   }
 
   // Remove senha do retorno por segurança
-  const { senha, ...usuarioSafe } = usuario;
-  res.status(200).json(usuarioSafe);
+  const { senha, ...cadastroSafe } = cadastro;
+  res.status(200).json(cadastroSafe);
 });
 
-// POST /usuarios - Cadastro
-app.post('/usuarios', (req, res) => {
+// POST /cadastros - Criar novo
+app.post('/cadastros', (req, res) => {
   const { nome, email, cpf, senha, telefone } = req.body;
 
   // Validação simples
@@ -71,65 +71,65 @@ app.post('/usuarios', (req, res) => {
     return res.status(400).json({ error: 'Campos obrigatórios: nome, email, cpf, senha.' });
   }
 
-  const usuarios = lerBanco();
+  const cadastros = lerBanco();
 
   // Verifica se Email ou CPF já existem
-  const existe = usuarios.find(u => u.email === email || u.cpf === cpf);
+  const existe = cadastros.find(c => c.email === email || c.cpf === cpf);
   if (existe) {
     return res.status(409).json({ error: 'Email ou CPF já cadastrados.' });
   }
 
-  const novoUsuario = {
+  const novoCadastro = {
     id: crypto.randomUUID(),
     nome,
     email,
     cpf,
     telefone: telefone || "",
-    senha // Em um caso real, usaríamos bcrypt para hashear a senha aqui
+    senha // Em produção, usar hash
   };
 
-  usuarios.push(novoUsuario);
-  salvarBanco(usuarios);
+  cadastros.push(novoCadastro);
+  salvarBanco(cadastros);
 
   // Retorna sem a senha
-  const { senha: _, ...usuarioRetorno } = novoUsuario;
-  res.status(201).json(usuarioRetorno);
+  const { senha: _, ...cadastroRetorno } = novoCadastro;
+  res.status(201).json(cadastroRetorno);
 });
 
-// PUT /usuarios/:id - Atualização
-app.put('/usuarios/:id', (req, res) => {
-  const usuarios = lerBanco();
-  const index = usuarios.findIndex(u => u.id === req.params.id);
+// PUT /cadastros/:id - Atualização
+app.put('/cadastros/:id', (req, res) => {
+  const cadastros = lerBanco();
+  const index = cadastros.findIndex(c => c.id === req.params.id);
 
-  if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  if (index === -1) return res.status(404).json({ error: 'Cadastro não encontrado.' });
 
   const { nome, email, cpf, senha, telefone } = req.body;
 
   // Atualiza dados, mantendo o ID
-  usuarios[index] = {
+  cadastros[index] = {
     id: req.params.id,
     nome,
     email,
     cpf,
     telefone: telefone || "",
-    senha: senha || usuarios[index].senha // Se não enviou senha nova, mantém a antiga
+    senha: senha || cadastros[index].senha // Se não enviou senha nova, mantém a antiga
   };
 
-  salvarBanco(usuarios);
+  salvarBanco(cadastros);
   
-  const { senha: _, ...usuarioRetorno } = usuarios[index];
-  res.status(200).json(usuarioRetorno);
+  const { senha: _, ...cadastroRetorno } = cadastros[index];
+  res.status(200).json(cadastroRetorno);
 });
 
-// DELETE /usuarios/:id
-app.delete('/usuarios/:id', (req, res) => {
-  let usuarios = lerBanco();
-  const index = usuarios.findIndex(u => u.id === req.params.id);
+// DELETE /cadastros/:id
+app.delete('/cadastros/:id', (req, res) => {
+  let cadastros = lerBanco();
+  const index = cadastros.findIndex(c => c.id === req.params.id);
 
-  if (index === -1) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  if (index === -1) return res.status(404).json({ error: 'Cadastro não encontrado.' });
 
-  usuarios.splice(index, 1);
-  salvarBanco(usuarios);
+  cadastros.splice(index, 1);
+  salvarBanco(cadastros);
 
   res.status(204).send();
 });
@@ -137,16 +137,16 @@ app.delete('/usuarios/:id', (req, res) => {
 // POST /login - Endpoint simples para simular autenticação
 app.post('/login', (req, res) => {
     const { email, senha } = req.body;
-    const usuarios = lerBanco();
+    const cadastros = lerBanco();
     
-    const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+    const cadastro = cadastros.find(c => c.email === email && c.senha === senha);
     
-    if (usuario) {
+    if (cadastro) {
         res.status(200).json({ 
             mensagem: "Login realizado com sucesso", 
             token: "fake-jwt-token-123", // Simulação de token
-            id: usuario.id,
-            nome: usuario.nome
+            id: cadastro.id,
+            nome: cadastro.nome
         });
     } else {
         res.status(401).json({ error: "Credenciais inválidas" });
@@ -154,6 +154,6 @@ app.post('/login', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Serviço de Usuários rodando na porta ${PORT}`);
+  console.log(`Serviço de Cadastro rodando na porta ${PORT}`);
   console.log(`Banco de dados: ${DB_FILE}`);
 });

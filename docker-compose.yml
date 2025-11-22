@@ -1,40 +1,39 @@
-version: '3.8' # Define a versão do Docker Compose
+version: '3.8'
 
-services: # Aqui começa a lista dos seus serviços
-
-  # 1. Serviço de Cadastro
-  cadastro:
-    build: ./srv-cadastro          # Onde está o Dockerfile dele?
+services:
+  # Alterado de 'svc-usuarios' para 'svc-cadastro'
+  svc-cadastro:
+    build: ./cadastro
+    container_name: container-cadastro
     ports:
-      - "3001:3001"                # Mapeia (Seu PC : Contêiner)
-    networks:
-      - seu-cantinho-net           # Todos na mesma rede
+      - "3001:3001"
+    volumes:
+      - ./cadastro/database:/app/database
 
-  # 2. Serviço de Espaço
-  espaco:
-    build: ./srv-espaco
+  svc-espacos:
+    build: ./espaco
+    container_name: container-espacos
     ports:
       - "3002:3002"
-    networks:
-      - seu-cantinho-net
+    volumes:
+      - ./espaco/database:/app/database
 
-  # 3. Serviço de Pagamento
-  pagamento:
-    build: ./srv-pagamento
+  svc-reservas:
+    build: ./reserva
+    container_name: container-reservas
     ports:
       - "3003:3003"
-    networks:
-      - seu-cantinho-net
+    volumes:
+      - ./reserva/database:/app/database
+    depends_on:
+      - svc-cadastro   # <--- Atualizado aqui
+      - svc-espacos
+      - svc-pagamentos
 
-  # 4. Serviço de Reserva
-  reserva:
-    build: ./srv-reserva
+  svc-pagamentos:
+    build: ./pagamento
+    container_name: container-pagamentos
     ports:
       - "3004:3004"
-    networks:
-      - seu-cantinho-net
-
-# Define a rede privada onde eles podem se "falar"
-networks:
-  seu-cantinho-net:
-    driver: bridge
+    volumes:
+      - ./pagamento/database:/app/database

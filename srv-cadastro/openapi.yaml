@@ -1,14 +1,14 @@
 openapi: 3.0.0
 info:
-  title: Serviço de Usuários (Seu Cantinho)
-  description: API para cadastro e gerenciamento de clientes/usuários.
+  title: Serviço de Cadastro (Seu Cantinho)
+  description: API para gerenciamento de cadastros de clientes.
   version: 1.0.0
 servers:
   - url: http://localhost:3001
     description: Servidor Local
 components:
   schemas:
-    Usuario:
+    Cadastro:
       type: object
       required:
         - nome
@@ -30,7 +30,7 @@ components:
         senha:
           type: string
           description: "Em produção, isso deve ser um hash, nunca texto plano."
-    UsuarioInput:
+    CadastroInput:
       type: object
       required:
         - nome
@@ -49,40 +49,40 @@ components:
         senha:
           type: string
 paths:
-  /usuarios:
+  /cadastros:
     get:
-      summary: Listar todos os usuários
-      tags: [Usuários]
+      summary: Listar todos os cadastros
+      tags: [Cadastro]
       responses:
         200:
-          description: Lista de usuários
+          description: Lista de cadastros
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Usuario'
+                  $ref: '#/components/schemas/Cadastro'
     post:
-      summary: Cadastrar novo usuário
-      tags: [Usuários]
+      summary: Criar novo cadastro
+      tags: [Cadastro]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsuarioInput'
+              $ref: '#/components/schemas/CadastroInput'
       responses:
         201:
-          description: Usuário criado com sucesso
+          description: Cadastro realizado com sucesso
         400:
           description: Dados inválidos
         409:
-          description: Email ou CPF já cadastrados
-  /usuarios/{id}:
+          description: Email ou CPF já existentes
+  /cadastros/{id}:
     get:
-      summary: Obter dados de um usuário
+      summary: Obter dados de um cadastro
       description: Endpoint essencial para validação no Serviço de Reservas.
-      tags: [Usuários]
+      tags: [Cadastro]
       parameters:
         - in: path
           name: id
@@ -91,16 +91,16 @@ paths:
           required: true
       responses:
         200:
-          description: Dados do usuário
+          description: Dados do cadastro
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Usuario'
+                $ref: '#/components/schemas/Cadastro'
         404:
-          description: Usuário não encontrado
+          description: Cadastro não encontrado
     put:
-      summary: Atualizar dados do usuário
-      tags: [Usuários]
+      summary: Atualizar dados do cadastro
+      tags: [Cadastro]
       parameters:
         - in: path
           name: id
@@ -111,13 +111,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsuarioInput'
+              $ref: '#/components/schemas/CadastroInput'
       responses:
         200:
-          description: Usuário atualizado
+          description: Cadastro atualizado
     delete:
-      summary: Remover usuário
-      tags: [Usuários]
+      summary: Remover cadastro
+      tags: [Cadastro]
       parameters:
         - in: path
           name: id
@@ -126,4 +126,4 @@ paths:
           required: true
       responses:
         204:
-          description: Usuário removido
+          description: Cadastro removido
