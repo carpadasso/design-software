@@ -10,9 +10,9 @@ const app = express();
 const PORT = 3003;
 
 // --- URLs dos Outros Microsserviços ---
-const URL_USUARIOS = 'http://localhost:3001';
-const URL_ESPACOS = 'http://localhost:3002';
-const URL_PAGAMENTOS = 'http://localhost:3004';
+const URL_USUARIOS   = 'http://svc-cadastro:3001';
+const URL_ESPACOS    = 'http://svc-espaco:3002';
+const URL_PAGAMENTOS = 'http://svc-pagamento:3004';
 
 app.use(express.json());
 

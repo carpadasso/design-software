@@ -10,7 +10,7 @@ const app = express();
 const PORT = 3004;
 
 // URL do Serviço de Reservas para notificação (Webhook/Callback)
-const URL_RESERVAS = 'http://localhost:3003';
+const URL_RESERVAS = 'http://svc-reserva:3003';
 
 app.use(express.json());
 
