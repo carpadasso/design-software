@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  title: Serviço de Espaços (Seu Cantinho)
+  description: API para gerenciamento de espaços (salas, auditórios, etc).
+  version: 1.0.0
+servers:
+  - url: http://localhost:3002
+    description: Servidor Local
+components:
+  schemas:
+    Espaco:
+      type: object
+      required:
+        - nome
+        - capacidade
+        - preco
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único do espaço
+        nome:
+          type: string
+          description: Nome do espaço
+        capacidade:
+          type: integer
+          description: Capacidade de pessoas
+        preco:
+          type: number
+          format: float
+          description: Preço por hora ou diária
+        fotos:
+          type: array
+          items:
+            type: string
+          description: Lista de URLs das fotos
+    EspacoInput:
+      type: object
+      required:
+        - nome
+        - capacidade
+        - preco
+      properties:
+        nome:
+          type: string
+        capacidade:
+          type: integer
+        preco:
+          type: number
+        fotos:
+          type: array
+          items:
+            type: string
+paths:
+  /espacos:
+    get:
+      summary: Listar todos os espaços
+      tags: [Espaços]
+      responses:
+        200:
+          description: Lista retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Espaco'
+    post:
+      summary: Cadastrar um novo espaço
+      description: Endpoint utilizado pelo Gateway conforme diagrama de sequência.
+      tags: [Espaços]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EspacoInput'
+      responses:
+        201:
+          description: Espaço criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Espaco'
+  /espacos/{id}:
+    get:
+      summary: Obter detalhes de um espaço
+      tags: [Espaços]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do espaço
+      responses:
+        200:
+          description: Detalhes do espaço
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Espaco'
+        404:
+          description: Espaço não encontrado
+    put:
+      summary: Atualizar espaço (substituição completa)
+      tags: [Espaços]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EspacoInput'
+      responses:
+        200:
+          description: Espaço atualizado
+        404:
+          description: Espaço não encontrado
+    patch:
+      summary: Atualizar espaço (parcialmente)
+      tags: [Espaços]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                capacidade:
+                  type: integer
+                preco:
+                  type: number
+      responses:
+        200:
+          description: Espaço atualizado
+        404:
+          description: Espaço não encontrado
+    delete:
+      summary: Remover um espaço
+      tags: [Espaços]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        204:
+          description: Espaço removido com sucesso
+        404:
+          description: Espaço não encontrado

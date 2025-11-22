@@ -1,0 +1,40 @@
+version: '3.8' # Define a versão do Docker Compose
+
+services: # Aqui começa a lista dos seus serviços
+
+  # 1. Serviço de Cadastro
+  cadastro:
+    build: ./srv-cadastro          # Onde está o Dockerfile dele?
+    ports:
+      - "3001:3001"                # Mapeia (Seu PC : Contêiner)
+    networks:
+      - seu-cantinho-net           # Todos na mesma rede
+
+  # 2. Serviço de Espaço
+  espaco:
+    build: ./srv-espaco
+    ports:
+      - "3002:3002"
+    networks:
+      - seu-cantinho-net
+
+  # 3. Serviço de Pagamento
+  pagamento:
+    build: ./srv-pagamento
+    ports:
+      - "3003:3003"
+    networks:
+      - seu-cantinho-net
+
+  # 4. Serviço de Reserva
+  reserva:
+    build: ./srv-reserva
+    ports:
+      - "3004:3004"
+    networks:
+      - seu-cantinho-net
+
+# Define a rede privada onde eles podem se "falar"
+networks:
+  seu-cantinho-net:
+    driver: bridge

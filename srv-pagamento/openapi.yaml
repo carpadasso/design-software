@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  title: Serviço de Pagamentos (Seu Cantinho)
+  description: API para processamento e confirmação de pagamentos.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3004
+    description: Servidor Local
+components:
+  schemas:
+    Pagamento:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        idReserva:
+          type: string
+          format: uuid
+          description: ID da reserva associada
+        valor:
+          type: number
+        status:
+          type: string
+          enum: [PENDENTE, PAGO, CANCELADO]
+    PagamentoInput:
+      type: object
+      required:
+        - idReserva
+        - valor
+      properties:
+        idReserva:
+          type: string
+        valor:
+          type: number
+paths:
+  /pagamentos:
+    get:
+      summary: Listar todos os pagamentos
+      tags: [Pagamentos]
+      responses:
+        200:
+          description: Lista de pagamentos
+    post:
+      summary: Criar intenção de pagamento
+      description: Chamado pelo Serviço de Reservas quando uma reserva é criada.
+      tags: [Pagamentos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagamentoInput'
+      responses:
+        201:
+          description: Pagamento criado (Status Pendente)
+  /pagamentos/{id}:
+    get:
+      summary: Consultar um pagamento
+      tags: [Pagamentos]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Detalhes do pagamento
+        404:
+          description: Pagamento não encontrado
+  /pagamentos/{id}/confirmar:
+    post:
+      summary: Confirmar realização do pagamento
+      description: Atualiza status local e notifica Serviço de Reservas (Passo crítico do Diagrama).
+      tags: [Pagamentos]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "PAGO"
+      responses:
+        200:
+          description: Pagamento confirmado e Reserva notificada
+        404:
+          description: Pagamento não encontrado
+        502:
+          description: Erro ao notificar o Serviço de Reservas
