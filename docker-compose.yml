@@ -1,37 +1,40 @@
 services:
-  # Alterado de 'svc-usuarios' para 'svc-cadastro'
+  # Serviço de Cadastro (Pasta srv-cadastro)
   svc-cadastro:
-    build: ./cadastro
+    build: ./srv-cadastro       # <--- Caminho ajustado
     container_name: container-cadastro
     ports:
       - "3001:3001"
     volumes:
-      - ./cadastro/database:/app/database
+      - ./srv-cadastro/database:/app/database # <--- Volume ajustado
 
+  # Serviço de Espaços (Pasta srv-espaco)
   svc-espacos:
-    build: ./espaco
+    build: ./srv-espaco         # <--- Caminho ajustado
     container_name: container-espacos
     ports:
       - "3002:3002"
     volumes:
-      - ./espaco/database:/app/database
+      - ./srv-espaco/database:/app/database
 
+  # Serviço de Reservas (Pasta srv-reserva)
   svc-reservas:
-    build: ./reserva
+    build: ./srv-reserva        # <--- Caminho ajustado
     container_name: container-reservas
     ports:
       - "3003:3003"
     volumes:
-      - ./reserva/database:/app/database
+      - ./srv-reserva/database:/app/database
     depends_on:
-      - svc-cadastro   # <--- Atualizado aqui
+      - svc-cadastro
       - svc-espacos
       - svc-pagamentos
 
+  # Serviço de Pagamentos (Pasta srv-pagamento)
   svc-pagamentos:
-    build: ./pagamento
+    build: ./srv-pagamento      # <--- Caminho ajustado
     container_name: container-pagamentos
     ports:
       - "3004:3004"
     volumes:
-      - ./pagamento/database:/app/database
+      - ./srv-pagamento/database:/app/database
