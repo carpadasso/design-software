@@ -76,7 +76,7 @@ Para executar este projeto, você precisará ter o **Docker** e o **Docker Compo
 * **Linux:** Siga as instruções oficiais para instalar o [Docker Engine](https://docs.docker.com/engine/install/) e o plugin do [Docker Compose](https://docs.docker.com/compose/install/linux/).
 
 Para verificar se a instalação foi bem-sucedida, abra seu terminal e execute:
-```bash
+```yaml
 # Verifica a versão do Docker
 docker --version
 
