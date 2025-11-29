@@ -86,8 +86,8 @@ docker compose version
 
 ### 2. Rodando a Aplicação
 Com o Docker devidamente instalado e configurado, acesse o diretório raiz do projeto e execute os serviços:
-```diff
-+ docker compose up
+```yaml
+docker compose up
 ```
 
 ## Licença de Uso
