@@ -16,7 +16,7 @@ A ausência de uma solução robusta tem gerado problemas recorrentes, tais como
 
 ## Estrutura do Repositório
 Este repositório apresenta a seguinte estrutura em árvore, visando auxiliar o entendimento dos componentes do repositório ao leitor.
-```text
+```yaml
 design-software/
 ├── src/
 │   ├── srv-cadastro/
@@ -62,8 +62,8 @@ design-software/
 
 ## Execução do Código
 Para executar o código usando o Docker Compose, primeiro verifique se o Docker e o Docker Compose CLI estão instalados. Após isso, execute o seguinte comando:
-```bash
-docker compose up
+```console
+user@host:~$ docker compose up
 ```
 
 ## Licença de Uso
