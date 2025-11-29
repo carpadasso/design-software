@@ -1,6 +1,13 @@
 # Seu Cantinho - Loja de Reservas de Espaços
 ## Introdução do Trabalho de Design de Software - UFPR/2025-2
 
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+
+---
+
 **Descrição Retirada do Enunciado do Trabalho:** O "Seu Cantinho" é uma rede de lojas de aluguel de espaços para festas, como salões, chácaras e quadras esportivas. A proprietária, Dona Maria, iniciou seu negócio utilizando um sistema simples desenvolvido de forma emergencial para atender às demandas iniciais. Com o cresimento da empresa e a expansão para três estados diferentes, esse sistema se tornou insuficiente, principalmente por não garantir a consistência das reservas entre filiais e por apresentar limitações de usabilidadade e confiabilidade. Assim, é necessário o desenvolvimento de um novo sistema que ofereça suporte às seguintes funcionalidades essenciais:
 - (a) Cadastro dos espaços disponíveis para aluguel, com informações detalhadas como fotos, capacidade e preço.
 - (b) Gerenciamento das reservas futuras, contemplando data, cliente, espaço alugado e valor pago.
@@ -61,9 +68,26 @@ design-software/
 ```
 
 ## Execução do Código
-Para executar o código usando o Docker Compose, primeiro verifique se o Docker e o Docker Compose CLI estão instalados. Após isso, execute o seguinte comando:
-```console
-user@host:~$ docker compose up
+
+### 1. Pré-requisitos
+Para executar este projeto, você precisará ter o **Docker** e o **Docker Compose** instalados em sua máquina.
+
+* **Windows e Mac:** Recomenda-se instalar o [Docker Desktop](https://www.docker.com/products/docker-desktop/), que já inclui o Docker Engine e o Docker Compose.
+* **Linux:** Siga as instruções oficiais para instalar o [Docker Engine](https://docs.docker.com/engine/install/) e o plugin do [Docker Compose](https://docs.docker.com/compose/install/linux/).
+
+Para verificar se a instalação foi bem-sucedida, abra seu terminal e execute:
+```bash
+# Verifica a versão do Docker
+docker --version
+
+# Verifica a versão do Docker Compose (deve ser v2.x ou superior)
+docker compose version
+```
+
+### 2. Rodando a Aplicação
+Com o Docker devidamente instalado e configurado, acesse o diretório raiz do projeto e execute os serviços:
+```diff
++ docker compose up
 ```
 
 ## Licença de Uso
