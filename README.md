@@ -1,5 +1,5 @@
 # Seu Cantinho - Loja de Reservas de Espaços
-Trabalho de Design de Software/UFPR - 2025/2
+## Introdução do Trabalho de Design de Software - UFPR/2025-2
 
 **Descrição Retirada do Enunciado do Trabalho:** O "Seu Cantinho" é uma rede de lojas de aluguel de espaços para festas, como salões, chácaras e quadras esportivas. A proprietária, Dona Maria, iniciou seu negócio utilizando um sistema simples desenvolvido de forma emergencial para atender às demandas iniciais. Com o cresimento da empresa e a expansão para três estados diferentes, esse sistema se tornou insuficiente, principalmente por não garantir a consistência das reservas entre filiais e por apresentar limitações de usabilidadade e confiabilidade. Assim, é necessário o desenvolvimento de um novo sistema que ofereça suporte às seguintes funcionalidades essenciais:
 - (a) Cadastro dos espaços disponíveis para aluguel, com informações detalhadas como fotos, capacidade e preço.
