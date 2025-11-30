@@ -124,15 +124,15 @@ app.put('/cadastros/:id', (req, res) => {
   if (index === -1) return res.status(404).json({ error: 'Cadastro não encontrado.' });
 
   const { nome, email, cpf, senha, telefone } = req.body;
+  const cadastroAntigo = cadastros[index];
 
-  // Atualiza dados, mantendo o ID
   cadastros[index] = {
     id: req.params.id,
-    nome,
-    email,
-    cpf,
-    telefone: telefone || "",
-    senha: senha || cadastros[index].senha // Se não enviou senha nova, mantém a antiga
+    nome: nome || cadastroAntigo.nome,
+    email: email || cadastroAntigo.email,
+    cpf: cpf || cadastroAntigo.cpf,
+    telefone: telefone || cadastroAntigo.telefone,
+    senha: senha || cadastroAntigo.senha
   };
 
   salvarBanco(cadastros);
