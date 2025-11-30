@@ -1,16 +1,13 @@
 @startuml
 
-' --- ESTILIZAÇÃO GERAL ---
 skinparam componentStyle uml2
 skinparam defaultFontName "Segoe UI, Arial"
 skinparam linetype ortho
 skinparam roundCorner 10
 
-' Aumentei o espaçamento para evitar colisão de linhas
 skinparam nodesep 120
 skinparam ranksep 80
 
-' Cores Suaves
 skinparam component {
     BackgroundColor<<Frontend>> #E3F2FD
     BorderColor<<Frontend>> #1565C0
@@ -27,8 +24,6 @@ skinparam component {
 
 title Arquitetura "Seu Cantinho" (Alinhamento Forçado)
 
-' --- COMPONENTES ---
-
 package "Cliente" {
     [Frontend (Web App)] as AppCliente <<Frontend>>
 }
@@ -38,7 +33,6 @@ package "Roteamento" {
 }
 
 package "Microsserviços (Backend)" {
-    ' O COMANDO MÁGICO: 'together' força o agrupamento visual antes de desenhar setas
     together {
         [Serviço de\nUsuários] as SvcUsuarios <<Service>>
         [Serviço de\nReservas] as SvcReservas <<Service>>
@@ -48,7 +42,6 @@ package "Microsserviços (Backend)" {
 }
 
 package "Persistência (Dados)" {
-    ' Alinhando DBs também para ficar simétrico
     together {
         database "DB Usuários" as DBUsuarios <<Database>>
         database "DB Reservas" as DBReservas <<Database>>
@@ -57,51 +50,35 @@ package "Persistência (Dados)" {
     }
 }
 
-' --- ALINHAMENTO ESTRUTURAL (HIDDEN) ---
-' Estas linhas invisíveis definem o esqueleto do diagrama
-
-' 1. Vertical Central (Espinha dorsal)
 AppCliente -[hidden]down- Gateway
 Gateway -[hidden]down- SvcReservas
 SvcReservas -[hidden]down- DBReservas
 
-' 2. Horizontal (Ordem dos Serviços)
 SvcUsuarios -[hidden]right- SvcReservas
 SvcReservas -[hidden]right- SvcEspacos
 SvcEspacos -[hidden]right- SvcPagamentos
 
-' 3. Horizontal (Ordem dos Bancos - Espelhando os serviços)
 DBUsuarios -[hidden]right- DBReservas
 DBReservas -[hidden]right- DBEspacos
 DBEspacos -[hidden]right- DBPagamentos
 
-' --- CONEXÕES LÓGICAS ---
 
-' Frontend -> Gateway
+
 AppCliente --> Gateway
 
-' Gateway -> Serviços
-' DICA: Conectamos nas "portas" de cima (up) para não cruzar com as laterais
 Gateway -down-> SvcUsuarios
 Gateway -down-> SvcReservas
 Gateway -down-> SvcEspacos
 Gateway -down-> SvcPagamentos
 
-' Lógica de Negócios (Serviço -> Serviço)
-' Reservas valida Usuário (Esquerda)
 SvcReservas -left-> SvcUsuarios : Valida
 
-' Reservas consulta Espaço (Direita - Vizinho)
 SvcReservas -right-> SvcEspacos : Consulta
 
-' Reservas inicia Pagamento (Direita - Pula um componente)
-' O Ortho vai tentar passar por baixo ou por cima
 SvcReservas -right-> SvcPagamentos : Cobrança
 
-' Callback Pagamento -> Reserva
 SvcPagamentos .up.> SvcReservas : Confirmação
 
-' Conexão com Banco de Dados (Sempre para baixo)
 SvcUsuarios -down-> DBUsuarios
 SvcReservas -down-> DBReservas
 SvcEspacos -down-> DBEspacos

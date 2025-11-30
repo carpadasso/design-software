@@ -1,6 +1,5 @@
 @startuml
 
-' Diagrama 3: Processamento de Pagamento (e Confirmação da Reserva)
 autonumber
 skinparam sequenceArrowThickness 2
 skinparam participantPadding 10
@@ -18,17 +17,14 @@ activate Gateway
 Gateway -> SvcPagamentos : POST /pagamentos/{id}/confirmar
 activate SvcPagamentos
 
-' 1. Atualizar Pagamento
 SvcPagamentos -> DBPagamentos : Atualiza status para "PAGO" ou "QUITADO"
 activate DBPagamentos
 DBPagamentos --> SvcPagamentos : (Sucesso, retorna IdReserva associado)
 deactivate DBPagamentos
 
-' 2. Notificar Serviço de Reservas (Comunicação Síncrona via REST)
 SvcPagamentos -> SvcReservas : PATCH /reservas/{id_reserva}/status\n(body: "CONFIRMADA")
 activate SvcReservas
 
-' 3. Atualizar Reserva
 SvcReservas -> DBReservas : Atualiza status da reserva para "CONFIRMADA"
 activate DBReservas
 DBReservas --> SvcReservas : (Sucesso)

@@ -1,8 +1,5 @@
 @startuml
 
-' --- Classes de Entidade (Os Dados) ---
-' Foco em "Information Expert": Elas sabem seus próprios dados.
-
 class Cliente {
   - nome: string
   - cpf: int
@@ -61,8 +58,6 @@ class Pagamento {
   + confirmarPagamento()
 }
 
-' --- Classes de Controle (A Lógica) ---
-' Padrão GRASP "Controller": Mediadores entre os Atores e os Dados.
 class InterfaceAplicativo <<interface>> {
   + leEntradaUsuario(...)
   + leEntradaLojista(...)
@@ -96,7 +91,8 @@ class ServiçoCadastro {
   + cadastrarLojista(...): Lojista
 }
 
-' --- Relacionamentos (GRASP em ação) ---
+
+
 Cliente -down-> InterfaceAplicativo
 Lojista -> InterfaceAplicativo
 

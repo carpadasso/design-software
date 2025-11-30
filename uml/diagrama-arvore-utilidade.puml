@@ -1,0 +1,46 @@
+@startwbs
+<style>
+node {
+    Padding 12
+    Margin 10
+    HorizontalAlignment center
+    LineColor #666666
+    BackgroundColor #f9f9f9
+    RoundCorner 10
+    MaximumWidth 250
+    FontSize 20
+}
+rootNode {
+    LineColor black
+    BackgroundColor #E6E6FA
+    FontSize 20
+    FontStyle bold
+}
+</style>
+
+* Utility
+
+** Desempenho
+*** <b>Latência</b>\n----\nConfirmar reserva < 2s\n(P95 para 95% das reqs)\n----\n<color:Red><b>Alta</b></color>
+*** <b>Throughput</b>\n----\n100 pedidos/min\nsem degradação\n----\n<color:Orange><b>Média</b></color>
+
+** Escalabilidade
+*** <b>Elasticidade</b>\n----\nEscalar de 2 p/ 10 instâncias\nse CPU > 70%\n----\n<color:Red><b>Alta</b></color>
+
+** Disponibilidade
+*** <b>Uptime</b>\n----\n99.9% (Horário Comercial)\nMax 43 min off/mês\n----\n<color:Red><b>Alta</b></color>
+*** <b>Recuperação (RTO)</b>\n----\nReiniciar após falha crítica\nem < 5 minutos\n----\n<color:Orange><b>Média</b></color>
+
+** Confiabilidade
+*** <b>Consistência</b>\n----\nZero double-booking\nmesmo com concorrência\n----\n<color:Red><b>Alta</b></color>
+*** <b>Tolerância a Falhas</b>\n----\nFalha no e-mail não\nimpede a reserva\n----\n<color:Red><b>Alta</b></color>
+
+** Usabilidade
+*** <b>Acessibilidade</b>\n----\nConformidade WCAG AA\n(Deficiência visual)\n----\n<color:Orange><b>Média</b></color>
+*** <b>Experiência (UX)</b>\n----\nCancelamento em < 3 cliques\nsem manual\n----\n<color:Green><b>Baixa</b></color>
+
+** Segurança
+*** <b>Confidencialidade</b>\n----\nCriptografia AES-256 (repouso)\ne TLS 1.3 (trânsito)\n----\n<color:Red><b>Alta</b></color>
+*** <b>Integridade</b>\n----\nLogs imutáveis de\ntransações (LGPD)\n----\n<color:Red><b>Alta</b></color>
+
+@endwbs
