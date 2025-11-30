@@ -1,18 +1,19 @@
-const express = require('express');
-const axios = require('axios');
-const fs = require('fs');
+const express   = require('express');
+const axios     = require('axios');
+const fs        = require('fs');
 const swaggerUi = require('swagger-ui-express');
-const yaml = require('js-yaml');
-const path = require('path');
-const crypto = require('crypto');
+const yaml      = require('js-yaml');
+const path      = require('path');
+const crypto    = require('crypto');
 
 const app = express();
+
+// Porta do Serviço de Espaço
 const PORT = 3002;
 
-// Middleware para JSON
 app.use(express.json());
 
-// --- Configuração do Swagger ---
+// --------------------------- Configuração Swagger ---------------------------
 try {
   const fileContents = fs.readFileSync(path.join(__dirname, 'openapi.yaml'), 'utf8');
   const swaggerDocument = yaml.load(fileContents);
@@ -21,20 +22,21 @@ try {
 } catch (e) {
   console.error("Erro ao carregar openapi.yaml:", e);
 }
+// ----------------------------------------------------------------------------
 
-// --- Configuração do "Banco de Dados" (JSON) ---
+
+// ------------------------ Arquivo de Banco de Dados -------------------------
 const DB_DIR = path.join(__dirname, 'database');
 const DB_FILE = path.join(DB_DIR, 'dados-espaco.json');
 
-// Garante que a pasta e o arquivo existam ao iniciar
 if (!fs.existsSync(DB_DIR)) {
   fs.mkdirSync(DB_DIR, { recursive: true });
 }
 if (!fs.existsSync(DB_FILE)) {
-  fs.writeFileSync(DB_FILE, '[]', 'utf8'); // Inicia com array vazio
+  fs.writeFileSync(DB_FILE, '[]', 'utf8');
 }
 
-// Funções auxiliares de persistência
+// Função lerBanco(): Carrega o arquivo JSON inteiro em uma variável.
 function lerBanco() {
   try {
     const data = fs.readFileSync(DB_FILE, 'utf8');
@@ -45,6 +47,8 @@ function lerBanco() {
   }
 }
 
+// Função salvarBanco(): Salva a estrutura inteira do JSON de volta no arquivo,
+// simulando a escrita dos dados em um Banco de Dados.
 function salvarBanco(dados) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(dados, null, 2), 'utf8');
@@ -52,16 +56,23 @@ function salvarBanco(dados) {
     console.error("Erro ao salvar banco:", error);
   }
 }
+// ----------------------------------------------------------------------------
 
-// --- Rotas da API ---
 
-// 1. GET /espacos
+// ============================================================================
+// --------------------------   Rotas dos Serviços   --------------------------
+// ============================================================================
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// GET /espacos - Listar todos os espaços
+// Respostas possíveis: 200 (OK)
 app.get('/espacos', (req, res) => {
   const espacos = lerBanco();
   res.status(200).json(espacos);
 });
 
-// 2. GET /espacos/:id
+// GET /espacos/:id - Lista os dados de um espaço pelo ID
+// Respostas possíveis: 200 (OK), 404 (Não Encontrado)
 app.get('/espacos/:id', (req, res) => {
   const espacos = lerBanco();
   const espaco = espacos.find(e => e.id === req.params.id);
@@ -72,8 +83,11 @@ app.get('/espacos/:id', (req, res) => {
   
   res.status(200).json(espaco);
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// 3. POST /espacos
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// POST /espacos - Criar novo espaço
+// Respostas possíveis: 201 (Criado com Sucesso), 400 (Bad Request)
 app.post('/espacos', (req, res) => {
   const { nome, capacidade, preco, fotos } = req.body;
 
@@ -96,8 +110,11 @@ app.post('/espacos', (req, res) => {
 
   res.status(201).json(novoEspaco);
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// 4. PUT /espacos/:id
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// PUT /espacos/:id - Substitui um espaço existente
+// Respostas possíveis: 200 (OK), 404 (Não Encontrado)
 app.put('/espacos/:id', (req, res) => {
   const espacos = lerBanco();
   const index = espacos.findIndex(e => e.id === req.params.id);
@@ -120,8 +137,11 @@ app.put('/espacos/:id', (req, res) => {
   salvarBanco(espacos);
   res.status(200).json(espacos[index]);
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// 5. PATCH /espacos/:id
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// PATCH /espacos/:id - Altera um espaço existente
+// Respostas possíveis: 200 (OK), 404 (Não Encontrado)
 app.patch('/espacos/:id', (req, res) => {
   const espacos = lerBanco();
   const index = espacos.findIndex(e => e.id === req.params.id);
@@ -140,8 +160,11 @@ app.patch('/espacos/:id', (req, res) => {
   salvarBanco(espacos);
   res.status(200).json(espacoAtualizado);
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// 6. DELETE /espacos/:id
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// DELETE /espacos/:id - Remove um espaço existente
+// Respostas possíveis: 204 (OK sem Retorno), 404 (Não Encontrado)
 app.delete('/espacos/:id', (req, res) => {
   let espacos = lerBanco();
   const index = espacos.findIndex(e => e.id === req.params.id);
@@ -155,6 +178,7 @@ app.delete('/espacos/:id', (req, res) => {
   
   res.status(204).send();
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 app.listen(PORT, () => {
   console.log(`Serviço de Espaços rodando na porta ${PORT}`);

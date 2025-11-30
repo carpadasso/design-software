@@ -1,23 +1,22 @@
-const express = require('express');
-const axios = require('axios');
-const fs = require('fs');
+const express   = require('express');
+const axios     = require('axios');
+const fs        = require('fs');
 const swaggerUi = require('swagger-ui-express');
-const yaml = require('js-yaml');
-const path = require('path');
-const crypto = require('crypto');
+const yaml      = require('js-yaml');
+const path      = require('path');
+const crypto    = require('crypto');
 
 const app = express();
 const PORT = 3003;
 
-// --- URLs dos Outros Microsserviços ---
-// Atualizado: aponta para o serviço 'svc-cadastro' na porta 3001
-const URL_CADASTRO = 'http://svc-cadastro:3001'; 
-const URL_ESPACOS = 'http://svc-espacos:3002';
+// --------- URLs dos Outros Microsserviços ---------
+const URL_CADASTRO   = 'http://svc-cadastros:3001'; 
+const URL_ESPACOS    = 'http://svc-espacos:3002';
 const URL_PAGAMENTOS = 'http://svc-pagamentos:3004';
 
 app.use(express.json());
 
-// --- Configuração Swagger ---
+// --------------------------- Configuração Swagger ---------------------------
 try {
   const fileContents = fs.readFileSync(path.join(__dirname, 'openapi.yaml'), 'utf8');
   const swaggerDocument = yaml.load(fileContents);
@@ -26,39 +25,57 @@ try {
 } catch (e) {
   console.error("Erro ao carregar openapi.yaml:", e);
 }
+// ----------------------------------------------------------------------------
 
-// --- Persistência em Arquivo ---
+
+// ------------------------ Arquivo de Banco de Dados -------------------------
 const DB_DIR = path.join(__dirname, 'database');
 const DB_FILE = path.join(DB_DIR, 'dados-reserva.json');
 
 if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
 if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, '[]', 'utf8');
 
+// Função lerBanco(): Carrega o arquivo JSON inteiro em uma variável.
 function lerBanco() {
   try {
     return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
   } catch (error) { return []; }
 }
 
+// Função salvarBanco(): Salva a estrutura inteira do JSON de volta no arquivo,
+// simulando a escrita dos dados em um Banco de Dados.
 function salvarBanco(dados) {
   fs.writeFileSync(DB_FILE, JSON.stringify(dados, null, 2), 'utf8');
 }
+// ----------------------------------------------------------------------------
 
-// --- Rotas ---
 
-// GET /reservas
+// ============================================================================
+// --------------------------   Rotas dos Serviços   --------------------------
+// ============================================================================
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// GET /reservas - Lista todas as reservas existentes
+// Respostas possíveis: 200 (OK)
 app.get('/reservas', (req, res) => {
   res.status(200).json(lerBanco());
 });
 
-// GET /reservas/:id
+// GET /reservas/:id - Lista uma reserva existente por ID
+// Respostas possíveis: 200 (OK), 404 (Não Encontrado)
 app.get('/reservas/:id', (req, res) => {
   const reserva = lerBanco().find(r => r.id === req.params.id);
   if (!reserva) return res.status(404).json({ error: 'Reserva não encontrada' });
   res.status(200).json(reserva);
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// POST /reservas
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// POST /reservas - Cria uma nova reserva
+// Respostas possíveis: 201 (Criado com Sucesso), 400 (Bad Request), 500 (Erro
+// interno do servidor)
+// Respostas de acordo com outros Serviços: 404 (Cadastro não encontrado),
+// 502 (Bad Gateway - Sem comunicação), 409 (Reserva já existente)
 app.post('/reservas', async (req, res) => {
   const { idCliente, idEspaco, data } = req.body;
 
@@ -140,8 +157,11 @@ app.post('/reservas', async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// PATCH /reservas/:id
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// PATCH /reservas/:id - Altera uma reserva existente por ID
+// Respostas possíveis: 200 (OK), 404 (Não Encontrado)
 app.patch('/reservas/:id', (req, res) => {
   const reservas = lerBanco();
   const index = reservas.findIndex(r => r.id === req.params.id);
@@ -157,8 +177,11 @@ app.patch('/reservas/:id', (req, res) => {
 
   res.status(200).json(reservaAtualizada);
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// DELETE /reservas/:id
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// DELETE /reservas/:id - Remove uma reserva por ID
+// Respostas possíveis: 204 (OK sem Retorno), 404 (Não Encontrado)
 app.delete('/reservas/:id', (req, res) => {
   let reservas = lerBanco();
   const index = reservas.findIndex(r => r.id === req.params.id);
@@ -169,6 +192,7 @@ app.delete('/reservas/:id', (req, res) => {
   salvarBanco(reservas);
   res.status(204).send();
 });
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 app.listen(PORT, () => {
   console.log(`Serviço de Reservas rodando na porta ${PORT}`);

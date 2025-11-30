@@ -1,78 +1,110 @@
 @startuml
 
-' Diagrama de Componentes - "Seu Cantinho" (Microsserviços)
-' Define uma aparência mais "moderna" para os componentes
+' --- ESTILIZAÇÃO GERAL ---
 skinparam componentStyle uml2
 skinparam defaultFontName "Segoe UI, Arial"
-skinparam rectangle {
-    roundCorner 20
-}
-skinparam note {
-    backgroundColor #LightYellow
-    borderColor #Gray
-}
+skinparam linetype ortho
+skinparam roundCorner 10
 
-' O sistema todo é executado via Docker Compose
-package "Sistema 'Seu Cantinho' (Executado via 'docker compose up' [cite: 22, 28])" {
+' Aumentei o espaçamento para evitar colisão de linhas
+skinparam nodesep 120
+skinparam ranksep 80
 
-    ' 1. O Cliente (Frontend)
-    [Frontend (Web App)] as AppCliente
-    note right of AppCliente: Interface simples para\nDona Maria [cite: 12]
-
-    ' 2. O Ponto de Entrada
-    [API Gateway] as Gateway
-    note bottom of Gateway: Roteia chamadas externas\npara os serviços corretos
+' Cores Suaves
+skinparam component {
+    BackgroundColor<<Frontend>> #E3F2FD
+    BorderColor<<Frontend>> #1565C0
     
-    ' 3. Os Microsserviços
-    package "Microsserviços (Backend)" {
-        [Serviço de Espaços] as SvcEspacos
-        [Serviço de Reservas] as SvcReservas
-        [Serviço de Pagamentos] as SvcPagamentos
-        [Serviço de Usuários] as SvcUsuarios
-    }
+    BackgroundColor<<Gateway>> #F3E5F5
+    BorderColor<<Gateway>> #7B1FA2
 
-    ' 4. Os Bancos de Dados (Isolados)
-    database "DB Espaços" as DBEspacos
-    database "DB Reservas" as DBReservas
-    database "DB Pagamentos" as DBPagamentos
-    database "DB Usuários" as DBUsuarios
+    BackgroundColor<<Service>> #E8F5E9
+    BorderColor<<Service>> #2E7D32
 
-    ' Interfaces (as "bolas" ou "lollipops" representam as APIs REST)
-    ' "()" significa "Provided Interface"
-    interface "API REST [cite: 21]" as I_REST
-    Gateway -(I_REST
-    SvcEspacos -(I_REST
-    SvcReservas -(I_REST
-    SvcPagamentos -(I_REST
-    SvcUsuarios -(I_REST
+    BackgroundColor<<Database>> #FFF3E0
+    BorderColor<<Database>> #EF6C00
 }
 
-' ---------- RELACIONAMENTOS ----------
+title Arquitetura "Seu Cantinho" (Alinhamento Forçado)
 
-' Cliente fala APENAS com o Gateway
-AppCliente ..> Gateway : (HTTPS)
+' --- COMPONENTES ---
 
-' Gateway fala com todos os serviços
-' "..>" (seta tracejada) significa "Required Interface" ou "Dependency"
-Gateway ..> SvcEspacos
-Gateway ..> SvcReservas
-Gateway ..> SvcPagamentos
-Gateway ..> SvcUsuarios
+package "Cliente" {
+    [Frontend (Web App)] as AppCliente <<Frontend>>
+}
 
-' Comunicação Inter-Serviços (baseado nos Diagramas de Sequência)
-' O Serviço de Reservas precisa de dados de outros serviços
-SvcReservas ..> SvcUsuarios : (Verifica Cliente)
-SvcReservas ..> SvcEspacos : (Busca dados/preço do Espaço)
-SvcReservas ..> SvcPagamentos : (Cria Pagamento)
+package "Roteamento" {
+    [API Gateway] as Gateway <<Gateway>>
+}
 
-' O Serviço de Pagamentos notifica o de Reservas
-SvcPagamentos ..> SvcReservas : (Confirma Reserva)
+package "Microsserviços (Backend)" {
+    ' O COMANDO MÁGICO: 'together' força o agrupamento visual antes de desenhar setas
+    together {
+        [Serviço de\nUsuários] as SvcUsuarios <<Service>>
+        [Serviço de\nReservas] as SvcReservas <<Service>>
+        [Serviço de\nEspaços] as SvcEspacos <<Service>>
+        [Serviço de\nPagamentos] as SvcPagamentos <<Service>>
+    }
+}
 
-' Cada serviço é dono do seu banco de dados
-' (Linha sólida = associação direta/composição)
-SvcEspacos -- DBEspacos
-SvcReservas -- DBReservas
-SvcPagamentos -- DBPagamentos
-SvcUsuarios -- DBUsuarios
+package "Persistência (Dados)" {
+    ' Alinhando DBs também para ficar simétrico
+    together {
+        database "DB Usuários" as DBUsuarios <<Database>>
+        database "DB Reservas" as DBReservas <<Database>>
+        database "DB Espaços" as DBEspacos <<Database>>
+        database "DB Pagamentos" as DBPagamentos <<Database>>
+    }
+}
+
+' --- ALINHAMENTO ESTRUTURAL (HIDDEN) ---
+' Estas linhas invisíveis definem o esqueleto do diagrama
+
+' 1. Vertical Central (Espinha dorsal)
+AppCliente -[hidden]down- Gateway
+Gateway -[hidden]down- SvcReservas
+SvcReservas -[hidden]down- DBReservas
+
+' 2. Horizontal (Ordem dos Serviços)
+SvcUsuarios -[hidden]right- SvcReservas
+SvcReservas -[hidden]right- SvcEspacos
+SvcEspacos -[hidden]right- SvcPagamentos
+
+' 3. Horizontal (Ordem dos Bancos - Espelhando os serviços)
+DBUsuarios -[hidden]right- DBReservas
+DBReservas -[hidden]right- DBEspacos
+DBEspacos -[hidden]right- DBPagamentos
+
+' --- CONEXÕES LÓGICAS ---
+
+' Frontend -> Gateway
+AppCliente --> Gateway
+
+' Gateway -> Serviços
+' DICA: Conectamos nas "portas" de cima (up) para não cruzar com as laterais
+Gateway -down-> SvcUsuarios
+Gateway -down-> SvcReservas
+Gateway -down-> SvcEspacos
+Gateway -down-> SvcPagamentos
+
+' Lógica de Negócios (Serviço -> Serviço)
+' Reservas valida Usuário (Esquerda)
+SvcReservas -left-> SvcUsuarios : Valida
+
+' Reservas consulta Espaço (Direita - Vizinho)
+SvcReservas -right-> SvcEspacos : Consulta
+
+' Reservas inicia Pagamento (Direita - Pula um componente)
+' O Ortho vai tentar passar por baixo ou por cima
+SvcReservas -right-> SvcPagamentos : Cobrança
+
+' Callback Pagamento -> Reserva
+SvcPagamentos .up.> SvcReservas : Confirmação
+
+' Conexão com Banco de Dados (Sempre para baixo)
+SvcUsuarios -down-> DBUsuarios
+SvcReservas -down-> DBReservas
+SvcEspacos -down-> DBEspacos
+SvcPagamentos -down-> DBPagamentos
 
 @enduml
