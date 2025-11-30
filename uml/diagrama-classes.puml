@@ -1,49 +1,49 @@
 @startuml
-' Define a skin para um visual mais limpo
-
 
 ' --- Classes de Entidade (Os Dados) ---
 ' Foco em "Information Expert": Elas sabem seus próprios dados.
+
 class Cliente {
-  - id_usuario: int
-  - nome_usuario: string
-  - senha: string
+  - nome: string
   - cpf: int
   - email: string
-  - endereco: string
-  - saldo: int
-  --
-  + atualizarNome(...)
-  + atualizarEmail(...)
-  + atualizarSaldo(...)
+  - senha: string
 }
 
 class Lojista {
-  - id_lojista: int
-  - nome_lojista: string
-  - senha: string
+  - nome: string
   - cnpj: int
   - email: string
-  - endereco: string
+  - senha: string
+}
+
+class Cadastro {
+  - id_usuario: string
+  - nome_usuario: string
+  - email: string
+  - cpf: string
+  - telefone: string
+  - senha: string
   --
   + atualizarNome(...)
   + atualizarEmail(...)
 }
 
 class Espaco {
-  - id_espaco: int
-  - endereco: string
+  - id_espaco: string
+  - nome_espaco: string
   - capacidade: int
   - preco_diaria: double
-  - disponivel: boolean
+  - fotos: List(string)
   --
   + verificarDisponibilidade(data): boolean
 }
 
 class Reserva {
-  - id_reserva: int
-  - data_inicio: Date
-  - data_fim: Date
+  - id_reserva: string
+  - id_cliente: string
+  - id_espaco: string
+  - data: Date
   - valor_total: double
   - status_reserva: string
   --

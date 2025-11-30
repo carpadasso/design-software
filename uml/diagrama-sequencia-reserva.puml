@@ -6,7 +6,7 @@ skinparam sequenceArrowThickness 2
 skinparam participantPadding 10
 skinparam boxPadding 10
 
-actor "Cliente (Dona Maria)" as Cliente
+actor "Cliente" as Cliente
 participant "API Gateway" as Gateway
 participant "Serviço de Reservas" as SvcReservas
 participant "Serviço de Usuários" as SvcUsuarios
