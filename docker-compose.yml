@@ -2,7 +2,7 @@ services:
   # Serviço de Cadastro (Pasta srv-cadastro)
   svc-cadastros:
     build: ./src/srv-cadastro       # <--- Caminho ajustado
-    container_name: container-cadastro
+    container_name: container-cadastros
     ports:
       - "3001:3001"
     volumes:
